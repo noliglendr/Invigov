@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>INVIGOV Live E2E Pass — Stages 0–6</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #4b5563;
+      --line: #e5e7eb;
+      --bg: #ffffff;
+      --pass: #166534;
+      --pass-bg: #dcfce7;
+      --fail: #991b1b;
+      --fail-bg: #fee2e2;
+      --block: #92400e;
+      --block-bg: #fef3c7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.45;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 40px 28px 80px; }
+    h1 { font-size: 26px; margin: 0 0 8px; }
+    h2 { font-size: 18px; margin: 36px 0 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+    h3 { font-size: 16px; margin: 0 0 8px; }
+    p, li { color: var(--muted); }
+    .meta { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .meta strong { color: var(--ink); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; font-weight: 600; color: var(--ink); }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .pass { background: var(--pass-bg); color: var(--pass); }
+    .blocked { background: var(--block-bg); color: var(--block); }
+    .partial { background: #dbeafe; color: #1e40af; }
+    img.shot {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin: 10px 0 4px;
+    }
+    .caption { font-size: 12px; color: #6b7280; margin: 0 0 16px; }
+    .stage { page-break-inside: avoid; margin-bottom: 28px; }
+    .note {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    @media print {
+      .wrap { padding: 0; }
+      a { color: inherit; text-decoration: none; }
+      .stage { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>INVIGOV live end-to-end pass</h1>
+    <p class="meta">
+      <strong>URL:</strong> <a href="https://www.invigov.com/">https://www.invigov.com</a><br />
+      <strong>Date:</strong> 30 September 2026 &nbsp;|&nbsp;
+      <strong>Scope:</strong> Stages 0–6 (signup → pay → 7 SAM steps → document)<br />
+      <strong>Method:</strong> Live browser capture. Paid and authenticated stages were not completed (no live card / verified inbox).
+    </p>
+
+    <h2>1. Scorecard</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Stage</th>
+          <th>Result</th>
+          <th>Evidence</th>
+          <th>If fail: layer</th>
+          <th>Fix estimate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0. Site loads</td>
+          <td><span class="badge pass">Pass</span></td>
+          <td>Homepage 200. API health <code>{"db":"ok","redis":"ok","r2":"ok"}</code></td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>1. Sign up</td>
+          <td><span class="badge partial">UI pass / not submitted</span></td>
+          <td>Register page live at /register. Account was not created on production.</td>
+          <td>Would be API or database if Create account fails</td>
+          <td>Hours–1 day</td>
+        </tr>
+        <tr>
+          <td>2. Verify email</td>
+          <td><span class="badge blocked">Blocked</span></td>
+          <td>Verify page exists. Needs a real inbox and a registration email.</td>
+          <td>Email (Resend / DNS) if no message arrives</td>
+          <td>Hours–2 days</td>
+        </tr>
+        <tr>
+          <td>3. Pay Complete</td>
+          <td><span class="badge blocked">Blocked</span></td>
+          <td>Pricing live: Complete $279/mo. Stripe Checkout not run (no live card).</td>
+          <td>Billing keys if Checkout never opens; webhook if paid but still locked</td>
+          <td>Hours–1 day</td>
+        </tr>
+        <tr>
+          <td>4. Workflow unlocks</td>
+          <td><span class="badge partial">Gate works / paid unlock untested</span></td>
+          <td>/dashboard/workflow redirects to login when logged out. Paid unlock not tested.</td>
+          <td>Webhook + database if paid users stay locked</td>
+          <td>Hours–1 day</td>
+        </tr>
+        <tr>
+          <td>5. All 7 SAM steps</td>
+          <td><span class="badge blocked">Blocked</span></td>
+          <td>Requires Complete plan. Logged-out users cannot enter the wizard.</td>
+          <td>API / database / encryption if steps fail to save</td>
+          <td>1–2 days</td>
+        </tr>
+        <tr>
+          <td>6. Generate document</td>
+          <td><span class="badge blocked">Blocked</span></td>
+          <td>Requires completed workflow. Storage layer (R2) is healthy on /api/v1/health.</td>
+          <td>API + R2 if generate/download fails</td>
+          <td>1–2 days</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Stage screenshots</h2>
+
+    <div class="stage">
+      <h3>Stage 0 — Site loads &nbsp;<span class="badge pass">Pass</span></h3>
+      <p>Live homepage at www.invigov.com. HTTPS, branding, Sign In, and Get Started are present.</p>
+      <img class="shot" src="screenshots/stage-0-homepage.png" alt="INVIGOV homepage" />
+      <p class="caption">Figure 0. Live homepage, 30 Sep 2026.</p>
+      <div class="note">
+        <strong>API health (same host):</strong> <code>GET https://www.invigov.com/api/v1/health</code> returned
+        HTTP 200 <code>{"db":"ok","redis":"ok","r2":"ok"}</code>. Hosting, database, Redis, and R2 are up.
+        No uptime monitor was confirmed (no dashboard access).
+      </div>
+    </div>
+
+    <div class="stage">
+      <h3>Stage 1 — Sign up &nbsp;<span class="badge partial">UI pass / not submitted</span></h3>
+      <p>Register form is live: workspace name, email, password (8+ chars, uppercase + number), confirm password, Terms/Privacy.</p>
+      <img class="shot" src="screenshots/stage-1-register.png" alt="Create account page" />
+      <p class="caption">Figure 1. https://www.invigov.com/register — form not submitted (would create a production user).</p>
+      <div class="note"><strong>To finish this stage:</strong> create a test workspace, submit, and screenshot the “check your email” screen.</div>
+    </div>
+
+    <div class="stage">
+      <h3>Stage 2 — Verify email &nbsp;<span class="badge blocked">Blocked</span></h3>
+      <p>Login exists. The verify-email route exists but, without a token from a real email, shows “Invalid link”. That is expected.</p>
+      <img class="shot" src="screenshots/stage-2-login.png" alt="Sign in page" />
+      <p class="caption">Figure 2a. https://www.invigov.com/login</p>
+      <img class="shot" src="screenshots/stage-2-verify-email.png" alt="Invalid verification link" />
+      <p class="caption">Figure 2b. https://www.invigov.com/verify-email with no token — expected invalid-link state.</p>
+      <div class="note"><strong>To finish this stage:</strong> use a real inbox, click the Resend link, screenshot verified login.</div>
+    </div>
+
+    <div class="stage">
+      <h3>Stage 3 — Pay Complete &nbsp;<span class="badge blocked">Blocked</span></h3>
+      <p>Public pricing is live. Complete plan is $279/month and is required for the 7-step SAM workflow and PDF generation. Live card was not charged.</p>
+      <img class="shot" src="screenshots/stage-3-pricing.png" alt="Pricing: Free, Intelligence $199, Complete $279" />
+      <p class="caption">Figure 3. Public pricing on the live homepage. Stripe Checkout was not opened.</p>
+      <div class="note">
+        <strong>To finish this stage:</strong> after login, open Billing, choose Complete, complete Stripe with a live card,
+        screenshot /dashboard/billing/success. Then cancel unless the client wants the sub left on.
+        <br /><strong>If card charges but workflow stays locked:</strong> missing layer is the Stripe webhook (API + Stripe dashboard). Estimate: hours–1 day.
+      </div>
+    </div>
+
+    <div class="stage">
+      <h3>Stage 4 — Workflow unlocks &nbsp;<span class="badge partial">Gate works / paid unlock untested</span></h3>
+      <p>Visiting <code>/dashboard/workflow</code> while logged out redirects to login. Access control is working at the UI layer. Paid unlock after Complete checkout is untested.</p>
+      <img class="shot" src="screenshots/stage-4-workflow-gated.png" alt="Workflow URL redirected to login" />
+      <p class="caption">Figure 4. https://www.invigov.com/dashboard/workflow → /login (unauthenticated).</p>
+    </div>
+
+    <div class="stage">
+      <h3>Stages 5–6 — Seven SAM steps and document generation &nbsp;<span class="badge blocked">Blocked</span></h3>
+      <p>
+        These screens require a Complete-tier session. They were not reached. The 7 steps in product code are:
+        1 Business Info, 2 NAICS, 3 Banking, 4 Reps &amp; Certs, 5 Review, 6 Preflight, 7 Complete → Generate documents
+        (SAM checklist, FAR/DFARS reps &amp; certs, banking authorization).
+      </p>
+      <img class="shot" src="screenshots/stage-5-6-dashboard-mock.png" alt="Marketing mock of dashboard, not the authenticated wizard" />
+      <p class="caption">Figure 5–6. Marketing mock on the homepage only — not a completed live workflow. Replace with wizard + PDF screenshots after paid login.</p>
+    </div>
+
+    <h2>3. Stability items (roadmap)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Finding</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Uptime monitoring</td>
+          <td>Health endpoint is live and currently green (db / redis / r2). No evidence yet that UptimeRobot or similar is pinging it.</td>
+          <td>Partial — monitor not confirmed</td>
+        </tr>
+        <tr>
+          <td>Backups</td>
+          <td>Not documented in the runbook. Need Postgres + R2 backup/restore proof from the host dashboard.</td>
+          <td>Unconfirmed</td>
+        </tr>
+        <tr>
+          <td>Access control</td>
+          <td>Logged-out users cannot open /dashboard/workflow. JWT + server-side plan gates exist in code. Who has GitHub / server / Stripe / Namecheap is unknown.</td>
+          <td>Product gate: pass. Human access: unconfirmed</td>
+        </tr>
+        <tr>
+          <td>SAM.gov credentials</td>
+          <td>The product does not collect or store SAM.gov or Login.gov passwords. Users are told to create those accounts themselves.</td>
+          <td>Not stored</td>
+        </tr>
+        <tr>
+          <td>UEI / sensitive data</td>
+          <td>EIN and bank routing/account: AES-256-GCM (last 4 shown). UEI and CAGE: stored as plaintext. Invigov password: bcrypt.</td>
+          <td>Confirmed in code; production key not inspected</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. What is still needed to close this report</h2>
+    <ol>
+      <li>Client approval to charge a live Complete-plan card ($279/mo) — or a screen share so they enter the card.</li>
+      <li>A real inbox to complete email verification.</li>
+      <li>Screenshots of: verification success, Stripe Checkout, billing success, all 7 wizard steps, generated PDF download.</li>
+      <li>Hosting logins (Namecheap, server/Vercel, Stripe) to confirm backups and uptime monitors.</li>
+    </ol>
+    <p>Until those four items, stages 2–6 cannot be marked Pass or Fail for a full live payment path.</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# System dependencies for xhtml2pdf PDF generation
+# Required for Render.com deployment
+
+# Core build dependencies
+build-essential
+python3-dev
+libffi-dev
+
+# Font support
+fonts-liberation
+fonts-dejavu-core
+fontconfig
+
+# Image processing (for xhtml2pdf / Pillow)
+libjpeg-dev
+libpng-dev
+libtiff-dev
+libwebp-dev
+
+# XML/HTML parsing
+libxml2-dev
+libxslt1-dev
+zlib1g-dev
